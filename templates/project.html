@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTERSTELLAR CLUB - {{ project.name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(56,189,248,.14), transparent 30%),
+                        radial-gradient(circle at 80% 0%, rgba(129,140,248,.16), transparent 28%),
+                        #111827;
+            color: #e5e7eb;
+        }
+        .navbar {
+            background: rgba(17,24,39,0.84);
+            color: #e5e7eb;
+            padding: 18px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+        }
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .navbar-left img {
+            height: 46px;
+        }
+        .navbar h1 {
+            font-size: 20px;
+            letter-spacing: .3px;
+        }
+        .navbar a {
+            color: #0f172a;
+            text-decoration: none;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #06b6d4, #4f46e5);
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(79,70,229,0.35);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .project-header {
+            background: rgba(17,24,39,0.86);
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 22px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+        }
+        .project-header h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .project-header .type {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(96,165,250,0.18);
+            color: #bfdbfe;
+            border-radius: 999px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(96,165,250,0.35);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(17,24,39,0.82);
+            padding: 12px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #cbd5e1;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #06b6d4, #4f46e5);
+            color: #0f172a;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(79,70,229,0.3);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .card {
+            background: rgba(30,41,59,0.86);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .card h3 {
+            color: #f1f5f9;
+            margin-bottom: 14px;
+            font-size: 20px;
+        }
+        
+        /* Progress Bar Styles */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .progress-label {
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .progress-value {
+            font-weight: 800;
+            color: #22d3ee;
+            font-size: 18px;
+        }
+        .progress-bar-bg {
+            width: 100%;
+            height: 30px;
+            background: rgba(148,163,184,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22d3ee 0%, #4f46e5 100%);
+            border-radius: 15px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .progress-0 { background: #e0e0e0 !important; color: #666 !important; }
+        .progress-25 { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%) !important; }
+        .progress-50 { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%) !important; }
+        .progress-75 { background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%) !important; }
+        .progress-100 { background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important; }
+        
+        .progress-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .progress-controls button {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .progress-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .progress-controls button.active {
+            border-color: #1e40af;
+            background: #1e40af;
+            color: white;
+        }
+        
+        .overall-progress {
+            background: linear-gradient(135deg, #1e40af 0%, #dc2626 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .overall-progress h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #f9fafb;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-not-started { background: #fee; color: #c33; }
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .validation-go { background: #d1fae5; color: #065f46; }
+        .validation-hold { background: #fef3c7; color: #92400e; }
+        .validation-no-go { background: #fee; color: #c33; }
+        .validation-pending { background: #dbeafe; color: #1e40af; }
+        
+        select, input, textarea {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .btn {
+            padding: 8px 16px;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #1e3a8a; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        
+        .form-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        .file-info { flex: 1; }
+        .file-info h4 { color: #333; margin-bottom: 5px; }
+        .file-info p { color: #666; font-size: 14px; }
+        .file-actions { display: flex; gap: 10px; }
+        
+        .file-type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .file-pdf { background: #fee2e2; color: #991b1b; }
+        .file-excel { background: #dcfce7; color: #166534; }
+        .file-image { background: #dbeafe; color: #1e40af; }
+        .file-doc { background: #e0e7ff; color: #3730a3; }
+        
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fbf9f9;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        .message.own {
+            background: linear-gradient(135deg, #1e40af 0%, #dc2626 100%);
+            color: white;
+            margin-left: auto;
+        }
+        .message.other {
+            background: white;
+            border: 1px solid #e0e0e0;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .message.own .message-header { color: rgba(255,255,255,0.8); }
+        .message.other .message-header { color: #666; }
+        .message-username { font-weight: 600; }
+        .message.own .message-username { color: white; }
+        .message.other .message-username { color: #1e40af; }
+        .message-content { line-height: 1.5; }
+        
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        .chat-input form {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input textarea {
+            flex: 1;
+            resize: none;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .chat-input button { padding: 12px 30px; }
+        
+        .risk-form {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 5px;
+        }
+        .risk-form input, .risk-form select, .risk-form textarea {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        .risk-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .risk-high { background: #fee2e2; }
+        .risk-medium { background: #c7f8fe; }
+        .risk-low { background: #d1fae5; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <img src="/static/logo.png" alt="INTERSTELLAR CLUB">
+            <h1>INTERSTELLAR CLUB</h1>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            {% if user.role in ['Admin', 'Professor'] %}
+            <form method="POST" action="/projects/{{ project.id }}/delete" style="display: inline;" onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer ce projet ? Tous les fichiers et messages seront supprimés.');">
+                <button type="submit" style="background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">🗑️ Supprimer le projet</button>
+            </form>
+            {% endif %}
+            <a href="/dashboard">← Retour aux projets</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="project-header">
+            <h2>{{ project.name }}</h2>
+            <span class="type">{{ project.type }}</span>
+            <p style="color: #cbd5e1; margin-top: 15px; line-height: 1.6;">{{ project.mission_objective }}</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('avancement')">Avancement</button>
+            <button class="tab" onclick="showTab('phases')">Phases</button>
+            <button class="tab" onclick="showTab('team')">Équipe</button>
+            <button class="tab" onclick="showTab('files')">Fichiers</button>
+            <button class="tab" onclick="showTab('chat')">Discussion</button>
+            <button class="tab" onclick="showTab('risks')">Risques</button>
+            <button class="tab" onclick="showTab('info')">Infos</button>
+        </div>
+        
+        <!-- Avancement Tab -->
+        <div id="avancement" class="tab-content active">
+            <!-- Overall Progress -->
+            <div class="overall-progress">
+                <h3>📈 Avancement global du projet</h3>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill progress-{{ project.overall_progress }}" data-progress="{{ project.overall_progress }}" style="width: 0%;">
+                        {{ project.overall_progress }}%
+                    </div>
+                </div>
+                {% if user.role in ['Admin', 'Professor'] or is_manager %}
+                <form method="POST" action="/projects/{{ project.id }}/update-progress">
+                    <div class="progress-controls">
+                        <button type="submit" name="overall_progress" value="0" class="{% if project.overall_progress == 0 %}active{% endif %}">0%</button>
+                        <button type="submit" name="overall_progress" value="25" class="{% if project.overall_progress == 25 %}active{% endif %}">25%</button>
+                        <button type="submit" name="overall_progress" value="50" class="{% if project.overall_progress == 50 %}active{% endif %}">50%</button>
+                        <button type="submit" name="overall_progress" value="75" class="{% if project.overall_progress == 75 %}active{% endif %}">75%</button>
+                        <button type="submit" name="overall_progress" value="100" class="{% if project.overall_progress == 100 %}active{% endif %}">100%</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+            
+            <!-- Team Members Progress -->
+            <div class="card">
+                <h3>👥 Avancement des membres</h3>
+                {% if team_members %}
+                    {% for member in team_members %}
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-label">
+                                <strong>{{ member.user.first_name }} {{ member.user.last_name }}</strong> - {{ member.role }}
+                            </span>
+                            <span class="progress-value">{{ member.progress }}%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill progress-{{ member.progress }}" data-progress="{{ member.progress }}" style="width: 0%;">
+                                {% if member.progress > 0 %}{{ member.progress }}%{% endif %}
+                            </div>
+                        </div>
+                        {% if user.role in ['Admin', 'Professor'] or is_manager %}
+                        <form method="POST" action="/members/{{ member.id }}/update-progress">
+                            <div class="progress-controls">
+                                <button type="submit" name="progress" value="0" class="{% if member.progress == 0 %}active{% endif %}">0%</button>
+                                <button type="submit" name="progress" value="25" class="{% if member.progress == 25 %}active{% endif %}">25%</button>
+                                <button type="submit" name="progress" value="50" class="{% if member.progress == 50 %}active{% endif %}">50%</button>
+                                <button type="submit" name="progress" value="75" class="{% if member.progress == 75 %}active{% endif %}">75%</button>
+                                <button type="submit" name="progress" value="100" class="{% if member.progress == 100 %}active{% endif %}">100%</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: #94a3b8; padding: 40px;">Aucun membre pour le moment</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Phases Tab -->
+        <div id="phases" class="tab-content">
+            <div class="card">
+                <h3>📋 Phases d'ingénierie</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>Statut</th>
+                            <th>Validation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for phase in phases %}
+                        <tr>
+                            <td><strong>{{ phase.name }}</strong></td>
+                            <td>
+                                <span class="status-badge status-{{ phase.status.lower().replace(' ', '-') }}">
+                                    {{ phase.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge validation-{{ phase.validation.lower().replace('-', '').replace(' ', '-') }}">
+                                    {{ phase.validation }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.role in ['Admin', 'Professor'] or is_manager %}
+                                <form method="POST" action="/phases/{{ phase.id }}/update" style="display: inline-flex; gap: 10px;">
+                                    <select name="status">
+                                        <option value="Not Started" {% if phase.status == 'Not Started' %}selected{% endif %}>Pas commencé</option>
+                                        <option value="In Progress" {% if phase.status == 'In Progress' %}selected{% endif %}>En cours</option>
+                                        <option value="Completed" {% if phase.status == 'Completed' %}selected{% endif %}>Terminé</option>
+                                    </select>
+                                    <select name="validation">
+                                        <option value="Pending" {% if phase.validation == 'Pending' %}selected{% endif %}>En attente</option>
+                                        <option value="GO" {% if phase.validation == 'GO' %}selected{% endif %}>GO</option>
+                                        <option value="HOLD" {% if phase.validation == 'HOLD' %}selected{% endif %}>HOLD</option>
+                                        <option value="NO-GO" {% if phase.validation == 'NO-GO' %}selected{% endif %}>NO-GO</option>
+                                    </select>
+                                    <button type="submit" class="btn">Mettre à jour</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Team Tab -->
+        <div id="team" class="tab-content">
+            <div class="card">
+                <h3>👥 Équipe du projet</h3>
+
+                {% if user.role in ['Admin', 'Professor'] %}
+                <div class="form-section">
+                    <h4 style="margin-bottom: 15px;">Ajouter un membre</h4>
+                    <form method="POST" action="/projects/{{ project.id }}/add-member">
+                        <div style="display: grid; grid-template-columns: 2fr 2fr 3fr 1fr; gap: 10px; align-items: end;">
+                            <div class="form-group" style="margin: 0;">
+                                <label>Membre</label>
+                                <select name="user_id" required>
+                                    <option value="">Choisir un membre</option>
+                                    {% for available_user in available_users %}
+                                    <option value="{{ available_user.id }}">{{ available_user.first_name }} {{ available_user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label>Rôle</label>
+                                <select name="role" required>
+                                    <option value="">Choisir le rôle</option>
+                                    <option value="Structures">Structures</option>
+                                    <option value="Propulsion">Propulsion</option>
+                                    <option value="Avionique Et Électronique">Avionique Et Électronique</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label>Responsabilités</label>
+                                <input type="text" name="responsibilities" placeholder="Optionnel">
+                            </div>
+                            <button type="submit" class="btn btn-success" style="height: 40px;">Ajouter</button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom complet</th>
+                            <th>Rôle</th>
+                            <th>Responsabilités</th>
+                            <th>Date d'entrée</th>
+                            {% if user.role in ['Admin', 'Professor'] %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in team_members %}
+                        <tr>
+                            <td><strong>{{ member.user.first_name }} {{ member.user.last_name }}</strong></td>
+                            <td><span class="status-badge validation-pending">{{ member.role }}</span></td>
+                            <td>{{ member.responsibilities or '-' }}</td>
+                            <td>{{ member.added_at.strftime('%Y-%m-%d') }}</td>
+                            {% if user.role in ['Admin', 'Professor'] %}
+                            <td>
+                                <form method="POST" action="/projects/{{ project.id }}/remove-member/{{ member.id }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Supprimer ce membre ?')">Retirer</button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Files Tab -->
+        <div id="files" class="tab-content">
+            <div class="card">
+                <h3>📁 Fichiers et documents</h3>
+                
+                <div class="form-section">
+                    <h4 style="margin-bottom: 15px;">Téléverser un fichier</h4>
+                            <p style="color: #e5e7eb; margin-bottom: 15px; font-size: 14px;">
+                        {% if user.role in ['Admin', 'Professor'] or is_manager %}
+                        ✅ Vous pouvez téléverser les fichiers du projet (rapports, plans, etc.)
+                        {% else %}
+                        ✅ Vous pouvez téléverser votre travail et vos rapports
+                        {% endif %}
+                    </p>
+                    <form method="POST" action="/projects/{{ project.id }}/upload" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Fichier (PDF, Excel, Word, Images, ZIP)</label>
+                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.jpeg,.png,.txt,.zip" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description (optionnel)</label>
+                            <input type="text" name="description" placeholder="Ex : rapport de conception, résultats finaux...">
+                        </div>
+                        <button type="submit" class="btn btn-success">Téléverser</button>
+                    </form>
+                </div>
+                
+                {% if files %}
+                <div style="margin-top: 20px;">
+                    {% for file in files %}
+                    <div class="file-item">
+                        <div class="file-info">
+                            <h4>
+                                {{ file.original_filename }}
+                                <span class="file-type-badge file-{{ 'pdf' if file.file_type == '.pdf' else ('excel' if file.file_type in ['.xlsx', '.xls'] else ('doc' if file.file_type in ['.doc', '.docx'] else 'image')) }}">
+                                    {{ file.file_type.upper() }}
+                                </span>
+                            </h4>
+                            <p>
+                                {% if file.description %}{{ file.description }} • {% endif %}
+                                Téléversé par : <strong>{{ file.uploader.username }}</strong> • 
+                                {{ file.uploaded_at.strftime('%Y-%m-%d %H:%M') }}
+                            </p>
+                        </div>
+                        <div class="file-actions">
+                            <a href="/files/{{ file.id }}/download" class="btn">⬇️ Télécharger</a>
+                            {% if user.id == file.uploaded_by or user.role in ['Admin', 'Professor'] or is_manager %}
+                            <form method="POST" action="/files/{{ file.id }}/delete" style="display: inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Supprimer ce fichier ?')">Supprimer</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="text-align: center; color: #94a3b8; padding: 40px;">Aucun fichier pour le moment</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Chat Tab -->
+        <div id="chat" class="tab-content">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="message {% if message.user_id == user.id %}own{% else %}other{% endif %}">
+                            <div class="message-header">
+                                <span class="message-username">{{ message.user.first_name }} {{ message.user.last_name }}</span>
+                                <span>{{ message.created_at.strftime('%H:%M - %d/%m/%Y') }}</span>
+                            </div>
+                            <div class="message-content">{{ message.content }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="text-align: center; color: #94a3b8; padding: 40px;">Aucun message pour l'instant. Commencez la discussion 💬</p>
+                    {% endif %}
+                </div>
+                <div class="chat-input">
+                    <form method="POST" action="/projects/{{ project.id }}/messages">
+                        <textarea name="content" placeholder="Écrivez votre message ici..." rows="2" required></textarea>
+                        <button type="submit" class="btn btn-success">Envoyer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risks Tab -->
+        <div id="risks" class="tab-content">
+            <div class="card">
+                <h3>⚠️ Matrice des risques</h3>
+                
+                {% if user.role in ['Admin', 'Professor', 'Member'] or is_manager %}
+                <form method="POST" action="/risks/new" class="risk-form">
+                    <input type="hidden" name="project_id" value="{{ project.id }}">
+                    <textarea name="description" placeholder="Description du risque" required></textarea>
+                    <select name="probability" required>
+                        <option value="">Probabilité</option>
+                        <option value="Low">Faible</option>
+                        <option value="Medium">Moyenne</option>
+                        <option value="High">Élevée</option>
+                    </select>
+                    <select name="severity" required>
+                        <option value="">Gravité</option>
+                        <option value="Low">Faible</option>
+                        <option value="Medium">Moyenne</option>
+                        <option value="High">Élevée</option>
+                    </select>
+                    <textarea name="mitigation" placeholder="Plan d'atténuation" required></textarea>
+                    <button type="submit" class="btn">Ajouter un risque</button>
+                </form>
+                {% endif %}
+                
+                <table style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Probabilité</th>
+                            <th>Gravité</th>
+                            <th>Atténuation</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for risk in risks %}
+                        <tr class="risk-{{ risk.severity.lower() if risk.severity == 'High' else '' }}">
+                            <td>{{ risk.description }}</td>
+                            <td>{{ risk.probability }}</td>
+                            <td>{{ risk.severity }}</td>
+                            <td>{{ risk.mitigation }}</td>
+                            <td><span class="status-badge">{{ risk.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Info Tab -->
+        <div id="info" class="tab-content">
+            <div class="card">
+                <h3>ℹ️ Informations du projet</h3>
+                <table>
+                    <tr>
+                        <th style="width: 200px;">Nom du projet</th>
+                        <td>{{ project.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ project.type }}</td>
+                    </tr>
+                    <tr>
+                        <th>Objectif de mission</th>
+                        <td>{{ project.mission_objective }}</td>
+                    </tr>
+                    <tr>
+                        <th>Critères de succès</th>
+                        <td>{{ project.success_criteria }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de début</th>
+                        <td>{{ project.start_date.strftime('%Y-%m-%d') if project.start_date else 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de fin</th>
+                        <td>{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td><span class="status-badge status-completed">{{ project.status }}</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function setProgressBars() {
+            document.querySelectorAll('.progress-bar-fill').forEach(el => {
+                const p = parseInt(el.dataset.progress || '0', 10);
+                el.style.width = `${Math.max(0, Math.min(100, p))}%`;
+            });
+        }
+
+        function showTab(tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'chat') {
+                setTimeout(() => {
+                    const chatMessages = document.getElementById('chatMessages');
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+            }
+        }
+        
+        window.addEventListener('load', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            setProgressBars();
+        });
+        
+        if (window.location.hash === '#chat') {
+            showTab('chat');
+            document.querySelector('[onclick="showTab(\'chat\')"]').click();
+        }
+    </script>
+</body>
+</html>
