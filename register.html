@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTERSTELLAR CLUB - Création de compte</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Hide scrollbar */
+        body::-webkit-scrollbar { display: none; }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(56,189,248,.12), transparent 30%),
+                        radial-gradient(circle at 80% 0%, rgba(129,140,248,.14), transparent 28%),
+                        #0a1122;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+        .card {
+            width: 500px;
+            max-width: 100%;
+            background: rgba(17,24,39,0.88);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+        h1 { text-align: center; color: #fff; font-size: 22px; margin-bottom: 6px; }
+        .subtitle { text-align: center; color: #e5e7eb; margin-bottom: 16px; }
+        .error {
+            background: rgba(248,113,113,0.16);
+            color: #ffe4e6;
+            border: 1px solid rgba(248,113,113,0.45);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .group { margin-bottom: 14px; }
+        label { display: block; color: #e5e7eb; margin-bottom: 6px; font-weight: 600; }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(148,163,184,0.5);
+            background: #ffffff;
+            color: #0f172a;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #22d3ee;
+            box-shadow: 0 0 0 3px rgba(34,211,238,0.22);
+        }
+        select option { color: #0f172a; background: #ffffff; }
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #06b6d4, #4f46e5);
+            color: #0f172a;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 12px 28px rgba(79,70,229,0.35);
+            transition: transform .15s;
+            margin-top: 6px;
+        }
+        button:hover { transform: translateY(-2px); }
+        .switch {
+            text-align: center;
+            margin-top: 12px;
+            color: #cbd5e1;
+        }
+        .switch a { color: #22d3ee; font-weight: 700; text-decoration: none; }
+        .hint { color: #94a3b8; font-size: 13px; margin-top: 4px; }
+        .divider { height: 1px; background: rgba(148,163,184,0.2); margin: 10px 0 6px; }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #06b6d4;
+            cursor: pointer;
+        }
+        input[name="verification_code"] {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 0.5em;
+        }
+        button:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Créer un nouveau compte</h1>
+        <p class="subtitle">Rejoignez la plateforme de projets étudiants et démarrez dès maintenant</p>
+
+        {% if request.query_params.get('error') == 'missing_fields' %}
+        <div class="error">Merci de remplir tous les champs obligatoires pour l'étudiant.</div>
+        {% elif request.query_params.get('error') == 'invalid_card' %}
+        <div class="error">Format de carte étudiant non pris en charge.</div>
+        {% elif request.query_params.get('error') == 'duplicate' %}
+        <div class="error">Cet email ou nom d'utilisateur est déjà utilisé. Merci d'en choisir un autre.</div>
+        {% elif request.query_params.get('error') == 'accept_rules' %}
+        <div class="error">Vous devez accepter les règles pour créer un compte.</div>
+        {% elif request.query_params.get('error') == 'invalid_prof_email' %}
+        <div class="error">Pour les professeurs, l'email doit contenir "univ" et être une adresse universitaire valide.</div>
+        {% elif request.query_params.get('error') == 'missing_verification_code' %}
+        <div class="error">Veuillez entrer le code de vérification envoyé à votre email.</div>
+        {% elif request.query_params.get('error') == 'invalid_verification_code' %}
+        <div class="error">Code de vérification incorrect. Veuillez réessayer.</div>
+        {% elif request.query_params.get('error') == 'expired_verification_code' %}
+        <div class="error">Le code de vérification a expiré. Veuillez demander un nouveau code.</div>
+        {% endif %}
+        
+        <form method="POST" action="/register" enctype="multipart/form-data" id="registerForm">
+            <div class="group">
+                <label>Prénom</label>
+                <input type="text" name="first_name" required>
+            </div>
+            <div class="group">
+                <label>Nom</label>
+                <input type="text" name="last_name" required>
+            </div>
+            <div class="group">
+                <label>Nom d'utilisateur</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="group">
+                <label>Numéro de téléphone</label>
+                <input type="tel" name="phone_number">
+            </div>
+            <div class="group">
+                <label>Mot de passe</label>
+                <input type="password" name="password" required>
+            </div>
+            <div class="group">
+                <label>Profil</label>
+                <select name="role" id="roleSelect" required>
+                    <option value="">Choisir un profil</option>
+                    <option value="Student">Étudiant</option>
+                    <option value="Professor">Professeur</option>
+                </select>
+            </div>
+
+            <div class="group">
+                <label>Genre</label>
+                <select name="gender">
+                    <option value="">Choisir</option>
+                    <option value="Male">Homme</option>
+                    <option value="Female">Femme</option>
+                </select>
+            </div>
+            <div class="group">
+                <label>Lieu de naissance</label>
+                <select name="birth_place">
+                    <option value="">Choisir la ville</option>
+                    <option>01 - Adrar</option>
+                    <option>02 - Chlef</option>
+                    <option>03 - Laghouat</option>
+                    <option>04 - Oum El Bouaghi</option>
+                    <option>05 - Batna</option>
+                    <option>06 - Béjaïa</option>
+                    <option>07 - Biskra</option>
+                    <option>08 - Béchar</option>
+                    <option>09 - Blida</option>
+                    <option>10 - Bouira</option>
+                    <option>11 - Tamanrasset</option>
+                    <option>12 - Tébessa</option>
+                    <option>13 - Tlemcen</option>
+                    <option>14 - Tiaret</option>
+                    <option>15 - Tizi Ouzou</option>
+                    <option>16 - Alger</option>
+                    <option>17 - Djelfa</option>
+                    <option>18 - Jijel</option>
+                    <option>19 - Sétif</option>
+                    <option>20 - Saïda</option>
+                    <option>21 - Skikda</option>
+                    <option>22 - Sidi Bel Abbès</option>
+                    <option>23 - Annaba</option>
+                    <option>24 - Guelma</option>
+                    <option>25 - Constantine</option>
+                    <option>26 - Médéa</option>
+                    <option>27 - Mostaganem</option>
+                    <option>28 - M'Sila</option>
+                    <option>29 - Mascara</option>
+                    <option>30 - Ouargla</option>
+                    <option>31 - Oran</option>
+                    <option>32 - El Bayadh</option>
+                    <option>33 - Illizi</option>
+                    <option>34 - Bordj Bou Arréridj</option>
+                    <option>35 - Boumerdès</option>
+                    <option>36 - El Tarf</option>
+                    <option>37 - Tindouf</option>
+                    <option>38 - Tissemsilt</option>
+                    <option>39 - El Oued</option>
+                    <option>40 - Khenchela</option>
+                    <option>41 - Souk Ahras</option>
+                    <option>42 - Tipaza</option>
+                    <option>43 - Mila</option>
+                    <option>44 - Aïn Defla</option>
+                    <option>45 - Naâma</option>
+                    <option>46 - Aïn Témouchent</option>
+                    <option>47 - Ghardaïa</option>
+                    <option>48 - Relizane</option>
+                    <option>49 - Timimoun</option>
+                    <option>50 - Bordj Badji Mokhtar</option>
+                    <option>51 - Ouled Djellal</option>
+                    <option>52 - Béni Abbès</option>
+                    <option>53 - In Salah</option>
+                    <option>54 - In Guezzam</option>
+                    <option>55 - Touggourt</option>
+                    <option>56 - Djanet</option>
+                    <option>57 - El M'Ghair</option>
+                    <option>58 - El Menia</option>
+                </select>
+            </div>
+            <div class="group">
+                <label>Spécialité / Domaine d'études</label>
+                <select name="specialty" id="specialtySelect" required>
+                    <option value="">Choisir une spécialité</option>
+                    <option>Aéronautique</option>
+                    <option>Électronique</option>
+                    <option>Structures</option>
+                    <option>Mécanique</option>
+                    <option>Propulsion</option>
+                    <option>Intelligence Artificielle</option>
+                    <option>Robotique</option>
+                </select>
+            </div>
+            <div class="group">
+                <label>Date de naissance</label>
+                <input type="date" name="birth_date">
+            </div>
+
+            <div id="studentFields">
+                <div class="divider"></div>
+                <div class="group">
+                    <label>Numéro de carte étudiant</label>
+                    <input type="text" name="student_id_number">
+                </div>
+            <div class="group">
+                <label>Carte étudiant (image ou PDF)</label>
+                <input type="file" name="student_card" accept="image/*">
+                <div class="hint">Formats courants acceptés (JPG, PNG, PDF).</div>
+            </div>
+            </div>
+
+            <div id="professorVerification" style="display: none;">
+                <div class="divider"></div>
+                <div class="group">
+                    <label>Code de vérification (6 chiffres)</label>
+                    <input type="text" name="verification_code" id="verificationCode" maxlength="6" pattern="[0-9]{6}">
+                    <div class="hint">Entrez le code de 6 chiffres envoyé à votre email universitaire.</div>
+                </div>
+                <div class="group" id="sendCodeGroup">
+                    <button type="button" id="sendCodeBtn" onclick="sendVerificationCode()" style="width: 100%; background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        📧 Envoyer le code de vérification
+                    </button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button type="button" onclick="showRulesModal()" style="background: #06b6d4; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-right: 10px;">
+                    📜 Règles d'inscription
+                </button>
+            </div>
+
+            <div class="group">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" name="accept_rules" id="acceptRules" required style="margin-left: 0; margin-right: 10px; width: auto;">
+                    <span style="color: #e5e7eb;">J'ai lu et j'accepte les règles</span>
+                </label>
+                <div class="hint">Vous devez accepter les règles pour créer un compte.</div>
+            </div>
+
+            <button type="submit" id="submitBtn">Créer le compte</button>
+        </form>
+        
+        <div class="switch">
+            Vous avez déjà un compte ? <a href="/">Se connecter</a>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rulesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+        <div style="max-width: 800px; margin: 50px auto; background: rgba(17,24,39,0.95); border-radius: 16px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                <h2 style="color: #06b6d4; margin: 0; font-size: 24px;">📜 Règles d'inscription</h2>
+                <button onclick="hideRulesModal()" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px;">×</button>
+            </div>
+
+            <div style="color: #e5e7eb; line-height: 1.6; font-size: 16px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h3 style="color: #22d3ee; margin: 0;">INTERSTELLAR CLUB - Club Universitaire</h3>
+                    <p style="color: #94a3b8; margin: 10px 0 0 0;">Création d'un nouveau compte</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">1️⃣ Conditions d'accès</h4>
+                    <p>La création d'un compte est strictement réservée aux membres du <strong>Club Interstellaire</strong></p>
+                    <p>L'utilisateur doit être :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Étudiant(e) de l'université</li>
+                        <li>Enseignant(e) encadrant(e)</li>
+                        <li>Ou membre officiellement autorisé par l'administration du club</li>
+                    </ul>
+                    <p>Une validation interne du club peut être requise avant l'activation du compte</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">2️⃣ Exactitude des informations</h4>
+                    <p>L'utilisateur s'engage à fournir des informations exactes, complètes et vérifiables</p>
+                    <p>L'utilisation de fausses informations ou d'identités fictives est interdite</p>
+                    <p>Le club se réserve le droit de vérifier les données fournies</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">3️⃣ Compte personnel</h4>
+                    <p>Chaque membre ne peut créer qu'un seul compte</p>
+                    <p>Le partage de compte est strictement interdit</p>
+                    <p>L'utilisateur est responsable de toute activité effectuée via son compte</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">4️⃣ Sécurité du compte</h4>
+                    <p>L'utilisateur est responsable de la confidentialité de son mot de passe</p>
+                    <p>Toute tentative d'accès non autorisé doit être signalée immédiatement</p>
+                    <p>Le club décline toute responsabilité en cas de négligence de sécurité</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">5️⃣ Utilisation de la plateforme</h4>
+                    <p>La plateforme est destinée à un usage académique, scientifique et technique</p>
+                    <p>Toute utilisation à des fins commerciales, politiques ou illégales est strictement interdite</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">6️⃣ Règles spécifiques au Club Interstellaire</h4>
+                    <p>Le respect des valeurs du club est obligatoire :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Respect</li>
+                        <li>Travail d'équipe</li>
+                        <li>Responsabilité</li>
+                        <li>Sécurité</li>
+                        <li>Innovation technique</li>
+                    </ul>
+                    <p>L'utilisateur s'engage à respecter :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Le règlement interne du club</li>
+                        <li>Les décisions du bureau du club</li>
+                        <li>Les règles de sécurité pour les projets techniques</li>
+                        <li>Les normes de l'université</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">7️⃣ Contenu partagé</h4>
+                    <p>L'utilisateur est entièrement responsable du contenu qu'il publie</p>
+                    <p>Il est interdit de publier :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Contenu offensant ou discriminatoire</li>
+                        <li>Contenu dangereux ou non sécurisé</li>
+                        <li>Contenu violant la propriété intellectuelle</li>
+                    </ul>
+                    <p>Les projets techniques (fusées, drones, robotique) sont à but éducatif uniquement</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">8️⃣ Sécurité & responsabilité technique</h4>
+                    <p>Toute activité technique doit respecter les règles de sécurité</p>
+                    <p>Le club et l'université ne sont pas responsables d'un usage incorrect des informations partagées</p>
+                    <p>Les tests et expérimentations doivent être validés par les responsables du club</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">9️⃣ Confidentialité et données personnelles</h4>
+                    <p>Les données personnelles sont utilisées uniquement dans le cadre du club</p>
+                    <p>Aucune donnée ne sera partagée sans autorisation</p>
+                    <p>L'utilisateur peut demander la suppression de son compte</p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">🚀 Règles spécifiques aux projets spatiaux</h4>
+                    <p>Les projets spatiaux (fusées, satellites, sondes) sont régis par des règles strictes :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Toute construction doit être supervisée par un encadrant technique</li>
+                        <li>Les tests de lancement nécessitent une autorisation préalable</li>
+                        <li>Le respect des normes de sécurité aérienne est obligatoire</li>
+                        <li>Les matériaux utilisés doivent être certifiés et sûrs</li>
+                        <li>Documentation complète de chaque étape du projet</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">🔬 Règles de sécurité en laboratoire</h4>
+                    <p>La sécurité est la priorité absolue dans tous les espaces de travail :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Port obligatoire des équipements de protection individuelle (EPI)</li>
+                        <li>Interdiction de travailler seul dans les zones à risque</li>
+                        <li>Signalement immédiat de tout incident ou accident</li>
+                        <li>Respect des procédures d'urgence et d'évacuation</li>
+                        <li>Formation obligatoire aux gestes de premiers secours</li>
+                        <li>Maintenance régulière des équipements de laboratoire</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #06b6d4; margin: 20px 0 10px 0;">📊 Règles de partage des données scientifiques</h4>
+                    <p>Le partage des données respecte des principes éthiques stricts :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Les données expérimentales doivent être exactes et vérifiées</li>
+                        <li>Citation obligatoire des sources et références</li>
+                        <li>Protection des données sensibles et confidentielles</li>
+                        <li>Partage ouvert des résultats positifs comme négatifs</li>
+                        <li>Archivage systématique de toutes les données</li>
+                        <li>Respect des droits de propriété intellectuelle</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #ef4444; margin: 20px 0 10px 0;">🔟 Suspension ou suppression du compte</h4>
+                    <p>Le club se réserve le droit de :</p>
+                    <ul style="margin: 10px 0; padding-left: 30px;">
+                        <li>Suspendre temporairement le compte</li>
+                        <li>Supprimer définitivement le compte</li>
+                    </ul>
+                    <p>En cas de non-respect des règles, sans préavis</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="acceptRules()" style="background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                        J'ai lu et j'accepte les règles
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function toggleStudentFields() {
+            const roleSelect = document.getElementById('roleSelect');
+            const studentFields = document.getElementById('studentFields');
+            const professorVerification = document.getElementById('professorVerification');
+            const selectedRole = roleSelect.value;
+            const isStudent = selectedRole === 'Student';
+            const isProfessor = selectedRole === 'Professor';
+
+            if (studentFields) {
+                studentFields.style.display = isStudent ? 'block' : 'none';
+            }
+
+            if (professorVerification) {
+                professorVerification.style.display = isProfessor ? 'block' : 'none';
+            }
+
+            if (studentFields) {
+                studentFields.querySelectorAll('input, select').forEach(input => {
+                if (isStudent) {
+                    input.setAttribute('required', 'required');
+                } else {
+                    input.removeAttribute('required');
+                    if (input.type === 'file' || input.type === 'date') {
+                        input.value = '';
+                    } else {
+                        input.value = '';
+                    }
+                }
+            });
+            }
+
+            // Handle specialty field requirement
+            const specialtySelect = document.getElementById('specialtySelect');
+            if (specialtySelect) {
+                if (isStudent) {
+                    specialtySelect.setAttribute('required', 'required');
+                } else {
+                    specialtySelect.removeAttribute('required');
+                    specialtySelect.value = '';
+                }
+            }
+        }
+
+        function showRulesModal() {
+            document.getElementById('rulesModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function hideRulesModal() {
+            document.getElementById('rulesModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        function acceptRules() {
+            document.getElementById('acceptRules').checked = true;
+            hideRulesModal();
+            updateSubmitButton();
+        }
+
+        function sendVerificationCode() {
+            const emailInput = document.querySelector('input[name="email"]');
+            const roleSelect = document.getElementById('roleSelect');
+            const sendCodeBtn = document.getElementById('sendCodeBtn');
+
+            if (roleSelect.value !== 'Professor') {
+                alert('Cette fonctionnalité est réservée aux professeurs.');
+                return;
+            }
+
+            if (!emailInput.value || !emailInput.value.toLowerCase().includes('univ')) {
+                alert('Veuillez entrer une adresse email universitaire valide contenant "univ".');
+                return;
+            }
+
+            // Disable button and show loading
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.innerHTML = '⏳ Envoi en cours...';
+
+            // Send AJAX request to send verification code
+            fetch('/send-verification-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'email=' + encodeURIComponent(emailInput.value)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Code de vérification envoyé à votre email universitaire.');
+                    document.getElementById('verificationCode').focus();
+                    sendCodeBtn.innerHTML = '✅ Code envoyé - Renvoyer';
+                    sendCodeBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                } else {
+                    alert('Erreur lors de l\'envoi du code: ' + data.message);
+                    sendCodeBtn.innerHTML = '📧 Envoyer le code de vérification';
+                }
+            })
+            .catch(error => {
+                alert('Erreur de connexion. Veuillez réessayer.');
+                sendCodeBtn.innerHTML = '📧 Envoyer le code de vérification';
+            })
+            .finally(() => {
+                sendCodeBtn.disabled = false;
+            });
+        }
+
+        function updateSubmitButton() {
+            const acceptRulesCheckbox = document.getElementById('acceptRules');
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = !acceptRulesCheckbox.checked;
+            submitBtn.style.opacity = acceptRulesCheckbox.checked ? '1' : '0.5';
+        }
+
+        function validateProfessorEmail() {
+            const roleSelect = document.getElementById('roleSelect');
+            const emailInput = document.querySelector('input[name="email"]');
+            const isProfessor = roleSelect.value === 'Professor';
+
+            if (isProfessor && emailInput.value && !emailInput.value.toLowerCase().includes('univ')) {
+                emailInput.setCustomValidity('Pour les professeurs, l\'email doit contenir "univ"');
+                emailInput.reportValidity();
+                return false;
+            } else {
+                emailInput.setCustomValidity('');
+                return true;
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('rulesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideRulesModal();
+            }
+        });
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('rulesModal').style.display === 'block') {
+                hideRulesModal();
+            }
+        });
+
+        // Handle rules acceptance
+        const acceptRulesCheckbox = document.getElementById('acceptRules');
+        acceptRulesCheckbox.addEventListener('change', updateSubmitButton);
+        updateSubmitButton(); // Initialize button state
+
+        // Handle professor email validation
+        const roleSelect = document.getElementById('roleSelect');
+        const emailInput = document.querySelector('input[name="email"]');
+
+        // تأكد من تحميل DOM قبل استدعاء الدالة
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleStudentFields();
+        });
+
+        // دمج event listeners للـ roleSelect في واحد
+        roleSelect.addEventListener('change', function() {
+            toggleStudentFields();
+            setTimeout(validateProfessorEmail, 100); // Delay to allow role change to process
+        });
+
+        emailInput.addEventListener('input', validateProfessorEmail);
+
+        // Form validation before submit
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            if (!acceptRulesCheckbox.checked) {
+                e.preventDefault();
+                alert('Vous devez accepter les règles pour créer un compte.');
+                return false;
+            }
+
+            const roleSelect = document.getElementById('roleSelect');
+            const verificationCodeInput = document.getElementById('verificationCode');
+
+            if (roleSelect.value === 'Professor') {
+                if (!verificationCodeInput.value || verificationCodeInput.value.length !== 6) {
+                    e.preventDefault();
+                    alert('Veuillez entrer un code de vérification valide (6 chiffres).');
+                    verificationCodeInput.focus();
+                    return false;
+                }
+            }
+
+            if (!validateProfessorEmail()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
